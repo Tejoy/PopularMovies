@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DataDownloadComplete {
 
-    public void onSuccess(List<String> posterPaths);
+    public void onSuccess(List<MovieGridItem> posterPaths);
 
     public void onFailure(String message);
 }
