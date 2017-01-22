@@ -38,3 +38,4 @@ captures/
 
 # Keystore files
 *.jks
+app/src/main/java/com/nanodegree/tejomai/popularmovies/MoviesGridFragment.java
