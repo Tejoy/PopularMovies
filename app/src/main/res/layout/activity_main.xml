@@ -17,8 +17,9 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:text="@string/no_data"
+        tools:text="No movies to display!!"
         android:textStyle="bold"
-        android:textSize="16dp"
+        android:textSize="@dimen/activity_main_text_size"
         android:textColor="@color/white"/>
 
 </LinearLayout>

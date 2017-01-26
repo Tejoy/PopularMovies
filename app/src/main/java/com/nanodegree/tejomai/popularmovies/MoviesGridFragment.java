@@ -28,7 +28,7 @@ import static android.content.ContentValues.TAG;
  */
 public class MoviesGridFragment extends Fragment implements DataDownloadComplete{
 
-    private final String PARAM_API_KEY = "<ENTER YOUR API KEY>";
+    private final String PARAM_API_KEY = BuildConfig.OPEN_WATHER_MAP_API_KEY;
     private final String PARAM_LANGUAGE = "en-US";
 
     private MovieThumbnailsAdapter thumbnailsAdapter = null;

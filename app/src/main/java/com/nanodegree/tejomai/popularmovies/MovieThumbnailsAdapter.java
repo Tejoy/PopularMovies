@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -67,18 +66,24 @@ public class MovieThumbnailsAdapter extends BaseAdapter{
     @Override
     public View getView(final int position, View convertView, ViewGroup viewGroup) {
         Log.i(TAG,"get view called "+position);
+
+        ViewHolder viewHolder;
         View view = convertView;
 
         ImageView image;
-        TextView title;
 
         if (view == null) {
             view = new ImageView(mContext);
             view = mInflater.inflate(R.layout.grid_layout_item, viewGroup, false);
-            view.setTag(R.id.picture, view.findViewById(R.id.picture));
 
+            viewHolder = new ViewHolder();
+            viewHolder.imageView = (ImageView) view.findViewById(R.id.picture);
+
+            view.setTag(viewHolder);
+
+        }else{
+            viewHolder = (ViewHolder) view.getTag();
         }
-        image = (ImageView) view.getTag(R.id.picture);
 
         final String url = getUrl(position);
         final MovieGridItem item = getItem(position);
@@ -99,7 +104,7 @@ public class MovieThumbnailsAdapter extends BaseAdapter{
 
         });
         //Picasso library used for image fetching and loading
-        Picasso.with(mContext).load(url).into(image);
+        Picasso.with(mContext).load(url).into(viewHolder.imageView);
 
         return view;
     }
@@ -109,5 +114,10 @@ public class MovieThumbnailsAdapter extends BaseAdapter{
         builder.append(PopularMoviesUtil.BASE_URL_THUMBNAIL).append(PopularMoviesUtil.URL_PARAM_SIZE).append(getItem(position).getPosterPath());
         Log.i(TAG,"URL "+builder.toString());
         return builder.toString();
+    }
+
+    static class ViewHolder{
+        ImageView imageView;
+
     }
 }

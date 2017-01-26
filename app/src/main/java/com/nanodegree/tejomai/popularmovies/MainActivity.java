@@ -17,8 +17,9 @@ public class MainActivity extends AppCompatActivity  implements MoviesGridFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        (getFragmentManager().beginTransaction()).add(android.R.id.content,new MoviesGridFragment()).commit();
-
+        if(savedInstanceState == null) {
+            (getFragmentManager().beginTransaction()).add(android.R.id.content, new MoviesGridFragment()).commit();
+        }
         tv_no_movies = (TextView)findViewById(R.id.no_data_msg);
 
     }

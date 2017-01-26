@@ -23,7 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:textSize="26dp"
+        android:textSize="@dimen/detail_title_text_size"
         android:textStyle="bold"
         android:textColor="@color/white"
         android:gravity="center_horizontal"/>
@@ -32,7 +32,7 @@
         android:id="@+id/thumbnail"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/detail_image_margin_bottom"
         android:layout_weight="4"/>
 
     <LinearLayout
@@ -62,7 +62,7 @@
                 android:layout_weight="1"
                 android:layout_below="@id/title_vote"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="@dimen/detail_text_margin_left"
                 android:layout_toRightOf="@id/title_vote"
                 android:text="vote"
                 android:textColor="@color/white"/>
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/title_release_date"
                 android:layout_below="@id/title_vote"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="@dimen/detail_text_margin_left"
                 android:layout_weight="1"
                 android:text="date"
                 android:textColor="@color/white"/>
@@ -96,11 +96,11 @@
     <TextView
         android:id="@+id/title_overview"
         android:layout_width="wrap_content"
-        android:layout_marginBottom="3dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginBottom="@dimen/detail_summary_title_margin_bottom"
+        android:layout_marginTop="@dimen/detail_summary_title_margin_top"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:textSize="20dp"
+        android:textSize="@dimen/detail_summary_title_text_size"
         android:textStyle="bold"
         android:text="@string/title_overview"
         android:textColor="@color/white"
@@ -109,8 +109,8 @@
     <TextView
         android:id="@+id/overview"
         android:layout_width="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginBottom="@dimen/detail_summary_margin_bottom"
+        android:layout_marginTop="@dimen/detail_summary_margin_top"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_horizontal"
