@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
 import com.nanodegree.tejomai.popularmovies.R;
+import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
 import com.squareup.picasso.Picasso;
 
 public class MovieDetailActivity extends AppCompatActivity{
@@ -21,8 +22,8 @@ public class MovieDetailActivity extends AppCompatActivity{
     final String TAG = "MovieDetailActivity";
     ImageView thumbnail_img;
     TextView tv_title,tv_vote,tv_overview,tv_release_date;
-    String title;
     Toolbar toolbar;
+    MovieGridItem item;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +49,14 @@ public class MovieDetailActivity extends AppCompatActivity{
         Intent intent = getIntent();
         if(intent!=null){
             //retrieve data from intent and set in the layout
-            title = intent.getStringExtra(PopularMoviesUtil.EXTRA_TITLE);
-            tv_title.setText(title);
-            tv_overview.setText(intent.getStringExtra(PopularMoviesUtil.EXTRA_OVERVIEW));
-            tv_release_date.setText(intent.getStringExtra(PopularMoviesUtil.EXTRA_RELEASE_DATE));
-            tv_vote.setText(""+intent.getStringExtra(PopularMoviesUtil.EXTRA_VOTE));
-
+            item = intent.getParcelableExtra(PopularMoviesUtil.EXTRA_GRID_ITEM);
             url = intent.getStringExtra(PopularMoviesUtil.EXTRA_IMAGE_URL);
+
+            tv_title.setText(item.getOriginal_title());
+            tv_overview.setText(item.getOverview());
+            tv_release_date.setText(item.getRelease_date());
+            tv_vote.setText(item.getVote_average());
+
             Picasso.with(getBaseContext()).load(url).into(thumbnail_img);
             layout.setTitle(" ");
             appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -67,7 +69,7 @@ public class MovieDetailActivity extends AppCompatActivity{
                         scrollRange = appBarLayout.getTotalScrollRange();
                     }
                     if(scrollRange+verticalOffset == 0){
-                        layout.setTitle(title);
+                        layout.setTitle(item.getOriginal_title());
                         tv_title.setVisibility(View.GONE);
                         isShow = true;
                     }else if (isShow){

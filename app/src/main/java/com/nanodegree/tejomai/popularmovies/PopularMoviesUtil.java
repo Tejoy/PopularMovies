@@ -24,6 +24,7 @@ public class PopularMoviesUtil {
     public final static String URL_PARAM_SIZE = "w185/";
 
     public final static String EXTRA_IMAGE_URL = "url";
+    public final static String EXTRA_GRID_ITEM = "grid_item";
     public final static String EXTRA_TITLE = "title";
     public final static String EXTRA_VOTE = "vote";
     public final static String EXTRA_RELEASE_DATE = "release_date";

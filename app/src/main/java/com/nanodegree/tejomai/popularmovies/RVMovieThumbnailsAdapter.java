@@ -92,11 +92,8 @@ public class RVMovieThumbnailsAdapter extends RecyclerView.Adapter<RVMovieThumbn
                 Intent intent = new Intent();
                 intent.setClassName(mContext, MovieDetailActivity.class.getName());
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(PopularMoviesUtil.EXTRA_IMAGE_URL,url );
-                intent.putExtra(PopularMoviesUtil.EXTRA_OVERVIEW,item.getOverview());
-                intent.putExtra(PopularMoviesUtil.EXTRA_RELEASE_DATE,item.getRelease_date());
-                intent.putExtra(PopularMoviesUtil.EXTRA_TITLE,item.getOriginal_title());
-                intent.putExtra(PopularMoviesUtil.EXTRA_VOTE,item.getVote_average());
+                intent.putExtra(PopularMoviesUtil.EXTRA_IMAGE_URL,url);
+                intent.putExtra(PopularMoviesUtil.EXTRA_GRID_ITEM,item);
                 mContext.startActivity(intent);
             }
         }

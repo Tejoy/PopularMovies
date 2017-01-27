@@ -3,14 +3,14 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="activity_main_text_size">16dp</dimen>
-    <dimen name="detail_title_text_size">20dp</dimen>
+    <dimen name="activity_main_text_size">16sp</dimen>
+    <dimen name="detail_title_text_size">20sp</dimen>
     <dimen name="detail_title_margin_bottom">10dp</dimen>
     <dimen name="detail_image_margin_bottom">10dp</dimen>
     <dimen name="detail_text_margin_left">8dp</dimen>
     <dimen name="detail_summary_title_margin_top">15dp</dimen>
     <dimen name="detail_summary_title_margin_bottom">3dp</dimen>
-    <dimen name="detail_summary_title_text_size">20dp</dimen>
+    <dimen name="detail_summary_title_text_size">20sp</dimen>
 
     <dimen name="detail_summary_margin_top">5dp</dimen>
     <dimen name="detail_summary_margin_bottom">10dp</dimen>
