@@ -19,7 +19,7 @@ android {
     }
 
     buildTypes.each {
-        it.buildConfigField 'String', 'OPEN_WATHER_MAP_API_KEY', apikey
+        it.buildConfigField 'String', 'POPULAR_MOVIES_API_KEY', apikey
     }
 }
 

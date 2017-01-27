@@ -40,7 +40,7 @@ import static android.content.ContentValues.TAG;
  */
 public class MoviesGridFragment extends Fragment implements DataDownloadComplete {
 
-    private final String PARAM_API_KEY = BuildConfig.OPEN_WATHER_MAP_API_KEY;
+    private final String PARAM_API_KEY = BuildConfig.POPULAR_MOVIES_API_KEYC;BuildConfig
     private final String PARAM_LANGUAGE = "en-US";
     private final String key_instance_save = "moviesList";
 
