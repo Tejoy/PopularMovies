@@ -107,6 +107,10 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
 
     private void fetchDataAndUpdateGrid(String type){
         //start task to fetch image thumbnails
+        if(!PopularMoviesUtil.isNetworkAvailable(getActivity())){
+            onFailure(null);
+            return;
+        }
         MovieDataFetcherAsyncTask fetchTask = new MovieDataFetcherAsyncTask();
         fetchTask.setDataDownloadCompete(this);
         fetchTask.execute(type,PARAM_API_KEY,PARAM_LANGUAGE);
@@ -192,10 +196,14 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
 
     @Override
     public void onFailure(String message) {
-        Log.i(TAG,"Failed to get data with message "+message);
+
         //update adapter and UI on failure
         activityCallback.onFragmentInteraction(true);
-        activityCallback.showToast(message);
+        if(message!=null) {
+            Log.i(TAG,"Failed to get data with message "+message);
+            activityCallback.showToast(message);
+        }
+        gridItems = null;
         if(rvThumbnailsAdapter!=null) {
             rvThumbnailsAdapter.clearItems();
             rvThumbnailsAdapter.notifyDataSetChanged();

@@ -1,5 +1,9 @@
 package com.nanodegree.tejomai.popularmovies;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 /**
  * Created by tejomai on 15/01/17.
  */
@@ -24,6 +28,14 @@ public class PopularMoviesUtil {
     public final static String EXTRA_VOTE = "vote";
     public final static String EXTRA_RELEASE_DATE = "release_date";
     public final static String EXTRA_OVERVIEW = "overview";
+
+    //check network availability
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
 
 }

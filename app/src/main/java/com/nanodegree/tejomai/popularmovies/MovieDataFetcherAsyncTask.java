@@ -23,7 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskItem<List<MovieGridItem>>>{
 
-    private final String TAG = "MovieDataFetcher";
+    private final String TAG = "DataFetcherAsyncTask";
 
     public void setDataDownloadCompete(DataDownloadComplete dataDownloadCompete) {
         this.dataDownloadCompete = dataDownloadCompete;
@@ -82,6 +82,7 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskIt
                 return new AsyncTaskItem<List<MovieGridItem>>(dataList);
 
             } catch (IOException e) {
+                Log.e(TAG,""+e.getMessage());
                 e.printStackTrace();
                 return new AsyncTaskItem<List<MovieGridItem>>();
             }
@@ -91,11 +92,13 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskIt
     @Override
     protected void onPostExecute(AsyncTaskItem<List<MovieGridItem>> result) {
         super.onPostExecute(result);
-        if(result!=null){
+        if(result.getResult()!=null){
             dataDownloadCompete.onSuccess(result.getResult());
-        }else{
+        }else if(result.getError()!=null){
             dataDownloadCompete.onFailure(result.getError().getMessage());
             Log.e(TAG,result.getError().getStackTrace().toString());
+        }else{
+            dataDownloadCompete.onFailure(null);
         }
     }
 }
