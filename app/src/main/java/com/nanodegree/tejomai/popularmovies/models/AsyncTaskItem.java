@@ -1,10 +1,12 @@
-package com.nanodegree.tejomai.popularmovies;
+package com.nanodegree.tejomai.popularmovies.models;
 
 public class AsyncTaskItem<T> {
         private T result;
         private Exception error;
 
-        public T getResult() {
+
+
+    public T getResult() {
             return result;
         }
 
@@ -15,6 +17,11 @@ public class AsyncTaskItem<T> {
         public AsyncTaskItem(T result) {
             super();
             this.result = result;
+        }
+
+        public AsyncTaskItem() {
+            super();
+            this.result = null;
         }
 
         public AsyncTaskItem(Exception error) {

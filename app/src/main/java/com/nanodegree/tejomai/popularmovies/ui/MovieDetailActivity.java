@@ -1,4 +1,4 @@
-package com.nanodegree.tejomai.popularmovies;
+package com.nanodegree.tejomai.popularmovies.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
+import com.nanodegree.tejomai.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
 public class MovieDetailActivity extends AppCompatActivity{
@@ -38,7 +40,7 @@ public class MovieDetailActivity extends AppCompatActivity{
             tv_title.setText(intent.getStringExtra(PopularMoviesUtil.EXTRA_TITLE));
             tv_overview.setText(intent.getStringExtra(PopularMoviesUtil.EXTRA_OVERVIEW));
             tv_release_date.setText(intent.getStringExtra(PopularMoviesUtil.EXTRA_RELEASE_DATE));
-            tv_vote.setText(""+intent.getIntExtra(PopularMoviesUtil.EXTRA_VOTE,0));
+            tv_vote.setText(""+intent.getStringExtra(PopularMoviesUtil.EXTRA_VOTE));
         }
     }
 }

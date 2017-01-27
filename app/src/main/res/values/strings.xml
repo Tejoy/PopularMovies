@@ -7,7 +7,7 @@
     <string name="action_popularity">Sort by popularity</string>
     <string name="action_top_rated">Sort by rating</string>
     <string name="date">Release date</string>
-    <string name="votes">Votes</string>
+    <string name="rating">Rating</string>
     <string name="title_overview">Summary</string>
     <string name="no_data">No movies to display!!</string>
     <string name="no_network">Network is not available. Please connect and refresh again.</string>

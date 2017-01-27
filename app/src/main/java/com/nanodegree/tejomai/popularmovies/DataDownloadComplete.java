@@ -1,5 +1,7 @@
 package com.nanodegree.tejomai.popularmovies;
 
+import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
+
 import java.util.List;
 
 /**

@@ -4,24 +4,24 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.nanodegree.tejomai.popularmovies.models.AsyncTaskItem;
+import com.nanodegree.tejomai.popularmovies.models.JSONResponse;
+import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
+import com.nanodegree.tejomai.popularmovies.network.MoviesAPI;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by tejomai on 15/01/17.
  */
 
-public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskItem<String>>{
+public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskItem<List<MovieGridItem>>>{
 
     private final String TAG = "MovieDataFetcher";
 
@@ -51,7 +51,7 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskIt
     }
 
     @Override
-    protected AsyncTaskItem<String> doInBackground(String... params) {
+    protected AsyncTaskItem<List<MovieGridItem>> doInBackground(String... params) {
         if (params.length == 0) {
             return null;
         }
@@ -61,106 +61,41 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskIt
             return null;
         }
 
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String jsonStr = null;
-        AsyncTaskItem<String> result = null;
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
 
-        try {
-            URL url = new URL(buildURL(params[0],params[1],params[2]).toString());
+        MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
+        String type = params[0];
+        Call<JSONResponse> call = null;
 
-            // Create the request and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                jsonStr = null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                jsonStr = null;
-            }
-            jsonStr = buffer.toString();
-            Log.i(TAG," "+jsonStr);
-            result = new AsyncTaskItem<String>(jsonStr);
-        } catch (IOException e) {
-            Log.e("ForecastFragment", "Error ", e);
-            // If the code didn't successfully get movies data, there's no point in attempting
-            // to parse it.
-            jsonStr = null;
-            result = new AsyncTaskItem<String>(e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e("ForecastFragment", "Error closing stream", e);
-                }
-            }
+        if(type.equals(PopularMoviesUtil.PREF_FILTER_POPULARITY)){
+            call = moviesAPI.loadPopularGridItemsCall(params[1],params[2]);
+        }else if(type.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)){
+            call = moviesAPI.loadRatedGridItemsCall(params[1],params[2]);
         }
 
-        return result;
+        if(call == null) {
+            return new AsyncTaskItem<List<MovieGridItem>>();
+        }
+            try {
+                Response<JSONResponse> response = call.execute();
+                List<MovieGridItem> dataList = response.body().getDataList();
+                return new AsyncTaskItem<List<MovieGridItem>>(dataList);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new AsyncTaskItem<List<MovieGridItem>>();
+            }
+
     }
 
     @Override
-    protected void onPostExecute(AsyncTaskItem<String> result) {
+    protected void onPostExecute(AsyncTaskItem<List<MovieGridItem>> result) {
         super.onPostExecute(result);
         if(result!=null){
-            dataDownloadCompete.onSuccess(parseResponseData(result.getResult()));
+            dataDownloadCompete.onSuccess(result.getResult());
         }else{
             dataDownloadCompete.onFailure(result.getError().getMessage());
             Log.e(TAG,result.getError().getStackTrace().toString());
         }
-    }
-
-    //parse the required data from the received response and return in a list of MovieGridItem objects
-    private List<MovieGridItem> parseResponseData(String jsonStr){
-        List<MovieGridItem> results = new ArrayList<>();
-
-        MovieGridItem gridItem;
-
-        if(jsonStr == null){
-            return results;
-        }
-
-        JSONObject innerObj;
-        try {
-            JSONObject obj = new JSONObject(jsonStr);
-            JSONArray list = obj.getJSONArray("results");
-
-            if(list == null){
-                return results;
-            }
-
-            for(int i=0;i<list.length();++i){
-                innerObj = list.getJSONObject(i);
-                gridItem = new MovieGridItem(innerObj.getString("poster_path"),innerObj.getString("original_title"),innerObj.getString("overview"),innerObj.getInt("vote_average"),innerObj.getString("release_date"));
-                results.add(gridItem);
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return results;
     }
 }

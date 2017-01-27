@@ -1,4 +1,4 @@
-package com.nanodegree.tejomai.popularmovies;
+package com.nanodegree.tejomai.popularmovies.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
