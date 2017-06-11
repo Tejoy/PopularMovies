@@ -7,20 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tejomai on 27/01/17.
+ * Created by tejomai on 04/05/17.
  */
 
-
-public class JSONResponse {
-
-    String TAG = "JSONResponse";
+public class MovieVideosJSONResponse {
 
     @SerializedName("results")
     @Expose
-    private List<MovieGridItem> dataList = new ArrayList<MovieGridItem>();
+    private List<MovieVideoItem> dataList = new ArrayList<MovieVideoItem>();
 
-    public List<MovieGridItem> getDataList() {
+    public List<MovieVideoItem> getDataList() {
         return dataList;
     }
-
 }

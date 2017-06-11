@@ -50,6 +50,7 @@
         android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="false"
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -74,78 +75,134 @@
                 android:layout_weight="4"
                 android:visibility="gone"/>
 
-            <LinearLayout
+
+
+            <RelativeLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/star"
+                android:layout_width="@dimen/star_width"
+                android:layout_height="@dimen/star_height"
+                android:layout_marginRight="@dimen/star_right_margin"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/star_selected"/>
+
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:orientation="vertical">
+                android:textSize="@dimen/detail_title_text_size"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@id/star"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="@dimen/detail_title_margin_bottom"/>
 
-                <RelativeLayout
+</RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="true">
+
+            <TextView
+                android:id="@+id/title_release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/title_release_date"
+                android:layout_marginLeft="@dimen/detail_text_margin_left"
+                android:layout_weight="1"
+                android:text="date"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/title_vote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/title_release_date"
+                android:layout_alignParentLeft="true"
+                android:text="@string/rating"
+                android:textStyle="bold"
+                android:textColor="@color/white"/>
+
+            <TextView
+                android:id="@+id/vote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/detail_text_margin_left"
+                android:layout_toRightOf="@id/title_vote"
+                android:layout_below="@id/title_release_date"
+                android:text="vote"
+                android:textColor="@color/white"/>
+
+
+</RelativeLayout>
+
+
+
+                <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true">
 
-                    <TextView
-                        android:id="@+id/title"
+                    <ImageView
+                        android:id="@+id/trailer_image"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/trailer_top_margin"
+                        android:layout_gravity="center"/>
+
+                    <ProgressBar
+                        android:id="@+id/trailer_progress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="@dimen/detail_title_text_size"
-                        android:layout_alignParentTop="true"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:layout_marginBottom="@dimen/detail_title_margin_bottom"/>
+                        android:indeterminate="true"
+                        android:layout_gravity="center"/>
 
-                    <TextView
-                        android:id="@+id/title_vote"
+
+                    <Button
+                        android:id="@+id/trailer_play_image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@id/title"
-                        android:text="@string/rating"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        android:id="@+id/vote"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/detail_text_margin_left"
-                        android:layout_below="@id/title"
-                        android:layout_toRightOf="@id/title_vote"
-                        android:text="vote"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        android:id="@+id/title_release_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/title_vote"
-                        android:text="@string/date"
-                        android:textStyle="bold"
-                        android:textColor="@color/white"/>
-
-                    <TextView
-                        android:id="@+id/release_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toRightOf="@id/title_release_date"
-                        android:layout_below="@id/title_vote"
-                        android:layout_marginLeft="@dimen/detail_text_margin_left"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
-                        android:text="date"
-                        android:textColor="@color/white"/>
+                        android:alpha="0.7"
+                        android:visibility="invisible"/>
+
+                </FrameLayout>
 
 
-                </RelativeLayout>
 
+            </RelativeLayout>
 
-            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/line_separator_height"
+                android:layout_marginTop="@dimen/line_separator_top_margin"
+                android:layout_marginLeft="@dimen/line_separator_left_margin"
+                android:layout_marginRight="@dimen/line_separator_right_margin"
+                android:background="@color/white"/>
 
             <TextView
                 android:id="@+id/title_overview"
                 android:layout_width="wrap_content"
                 android:layout_marginBottom="@dimen/detail_summary_title_margin_bottom"
                 android:layout_marginTop="@dimen/detail_summary_title_margin_top"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:textSize="@dimen/detail_summary_title_text_size"
                 android:textStyle="bold"
                 android:text="@string/title_overview"
@@ -157,16 +214,47 @@
                 android:layout_width="wrap_content"
                 android:layout_marginBottom="@dimen/detail_summary_margin_bottom"
                 android:layout_marginTop="@dimen/detail_summary_margin_top"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:textColor="@color/white"
                 />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/line_separator_height"
+                android:layout_marginLeft="@dimen/line_separator_left_margin"
+                android:layout_marginRight="@dimen/line_separator_right_margin"
+                android:background="@color/white"/>
 
+            <TextView
+                android:id="@+id/title_reviews"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="@dimen/detail_summary_title_margin_bottom"
+                android:layout_marginTop="@dimen/detail_summary_title_margin_top"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/detail_summary_title_text_size"
+                android:textStyle="bold"
+                android:text="@string/title_reviews"
+                android:textColor="@color/white"
+                />
+
+            <ProgressBar
+            android:id="@+id/reviews_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:layout_gravity="center"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/reviews_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:fillViewport="true">
+
+            </android.support.v7.widget.RecyclerView>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
-
 
 </android.support.design.widget.CoordinatorLayout>

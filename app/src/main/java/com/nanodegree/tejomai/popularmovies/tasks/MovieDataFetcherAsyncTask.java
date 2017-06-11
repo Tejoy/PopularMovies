@@ -1,12 +1,13 @@
-package com.nanodegree.tejomai.popularmovies;
+package com.nanodegree.tejomai.popularmovies.tasks;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
+import com.nanodegree.tejomai.popularmovies.interfaces.DataDownloadComplete;
 import com.nanodegree.tejomai.popularmovies.models.AsyncTaskItem;
-import com.nanodegree.tejomai.popularmovies.models.JSONResponse;
 import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
+import com.nanodegree.tejomai.popularmovies.models.MovieGridJSONResponse;
 import com.nanodegree.tejomai.popularmovies.network.MoviesAPI;
 
 import java.io.IOException;
@@ -16,6 +17,8 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.nanodegree.tejomai.popularmovies.PopularMoviesUtil.BASE_URL;
 
 /**
  * Created by tejomai on 15/01/17.
@@ -30,25 +33,6 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskIt
     }
 
     DataDownloadComplete dataDownloadCompete = null;
-    private final String BASE_URL = "http://api.themoviedb.org/3/";
-
-    private final String key_api_key = "api_key";
-    private final String key_language = "language";
-    private final String key_page = "page";
-    private final String key_region = "region";
-
-    //build url based on sort type
-    private Uri buildURL(String type,String api_key, String language){
-        Uri.Builder builder = Uri.parse(BASE_URL).buildUpon();
-        if(type.equals(PopularMoviesUtil.PREF_FILTER_POPULARITY)){
-            builder.appendEncodedPath(PopularMoviesUtil.URL_POPULARITY);
-        }else if(type.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)){
-            builder.appendEncodedPath(PopularMoviesUtil.URL_TOP_RATING);
-        }
-        builder.appendQueryParameter(key_api_key, api_key);
-        builder.appendQueryParameter(key_language,language);
-        return builder.build();
-    }
 
     @Override
     protected AsyncTaskItem<List<MovieGridItem>> doInBackground(String... params) {
@@ -65,19 +49,19 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String,Void,AsyncTaskIt
 
         MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
         String type = params[0];
-        Call<JSONResponse> call = null;
+        Call<MovieGridJSONResponse> gridCall = null;
 
         if(type.equals(PopularMoviesUtil.PREF_FILTER_POPULARITY)){
-            call = moviesAPI.loadPopularGridItemsCall(params[1],params[2]);
+            gridCall = moviesAPI.loadPopularGridItemsCall(params[1],params[2]);
         }else if(type.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)){
-            call = moviesAPI.loadRatedGridItemsCall(params[1],params[2]);
+            gridCall = moviesAPI.loadRatedGridItemsCall(params[1],params[2]);
         }
 
-        if(call == null) {
+        if(gridCall == null) {
             return new AsyncTaskItem<List<MovieGridItem>>();
         }
             try {
-                Response<JSONResponse> response = call.execute();
+                Response<MovieGridJSONResponse> response = gridCall.execute();
                 List<MovieGridItem> dataList = response.body().getDataList();
                 return new AsyncTaskItem<List<MovieGridItem>>(dataList);
 

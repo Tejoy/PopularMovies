@@ -6,11 +6,17 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by tejomai on 17/01/17.
  */
 
 public class MovieGridItem implements Parcelable {
+
+    @SerializedName("id")
+    @Expose
+    String id;
 
     @SerializedName("poster_path")
     @Expose
@@ -32,6 +38,11 @@ public class MovieGridItem implements Parcelable {
     @Expose
     String release_date;
 
+    List<MovieReviewItem> reviews = null;
+    List<MovieVideoItem> trailers = null;
+
+    public MovieGridItem(){}
+
     public MovieGridItem(String pp,String ot,String o,String va,String rd){
         posterPath = pp;
         original_title = ot;
@@ -41,11 +52,21 @@ public class MovieGridItem implements Parcelable {
     }
 
     public MovieGridItem(Parcel in){
+        id = in.readString();
         posterPath = in.readString();
         original_title = in.readString();
         overview = in.readString();
         vote_average = in.readString();
         release_date = in.readString();
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getPosterPath() {
@@ -88,6 +109,22 @@ public class MovieGridItem implements Parcelable {
         this.release_date = release_date;
     }
 
+    public List<MovieReviewItem> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<MovieReviewItem> reviews) {
+        this.reviews = reviews;
+    }
+
+    public List<MovieVideoItem> getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(List<MovieVideoItem> trailers) {
+        this.trailers = trailers;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -95,6 +132,7 @@ public class MovieGridItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
         parcel.writeString(posterPath);
         parcel.writeString(original_title);
         parcel.writeString(overview);

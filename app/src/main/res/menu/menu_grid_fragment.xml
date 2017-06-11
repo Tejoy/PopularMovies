@@ -15,6 +15,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_favourites"
+        android:orderInCategory="100"
+        android:title="@string/favourtite"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_refresh"
         android:orderInCategory="100"
         android:title="@string/refresh"

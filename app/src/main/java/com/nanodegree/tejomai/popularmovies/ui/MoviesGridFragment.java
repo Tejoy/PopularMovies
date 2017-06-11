@@ -16,13 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.nanodegree.tejomai.popularmovies.BuildConfig;
-import com.nanodegree.tejomai.popularmovies.DataDownloadComplete;
-import com.nanodegree.tejomai.popularmovies.MovieDataFetcherAsyncTask;
 import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
 import com.nanodegree.tejomai.popularmovies.R;
-import com.nanodegree.tejomai.popularmovies.RVMovieThumbnailsAdapter;
+import com.nanodegree.tejomai.popularmovies.adapters.RVMovieThumbnailsAdapter;
+import com.nanodegree.tejomai.popularmovies.db.DBHelper;
+import com.nanodegree.tejomai.popularmovies.interfaces.DataDownloadComplete;
 import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
+import com.nanodegree.tejomai.popularmovies.tasks.MovieDataFetcherAsyncTask;
 
 import java.io.Serializable;
 import java.util.List;
@@ -40,13 +40,14 @@ import static android.content.ContentValues.TAG;
  */
 public class MoviesGridFragment extends Fragment implements DataDownloadComplete {
 
-    private final String PARAM_API_KEY = BuildConfig.POPULAR_MOVIES_API_KEY;
+
     private final String PARAM_LANGUAGE = "en-US";
     private final String key_instance_save = "moviesList";
 
     private RVMovieThumbnailsAdapter rvThumbnailsAdapter = null;
     private List<MovieGridItem> gridItems = null;
     private OnFragmentInteractionListener activityCallback;
+    private DBHelper dbHelper;
     private int POTRAIT_COL_COUNT = 2;
     private int LANSCAPE_COL_COUNT = 4;
 
@@ -84,7 +85,7 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
                              Bundle savedInstanceState) {
 
 
-
+        dbHelper = new DBHelper(getActivity().getBaseContext());
         View frame = inflater.inflate(R.layout.fragment_movies_recyclerview, container, false);
         RecyclerView rvMoviesGrid = (RecyclerView) frame.findViewById(R.id.rvMoviesGrid);
         rvThumbnailsAdapter = new RVMovieThumbnailsAdapter(getActivity(), gridItems);
@@ -113,7 +114,24 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         }
         MovieDataFetcherAsyncTask fetchTask = new MovieDataFetcherAsyncTask();
         fetchTask.setDataDownloadCompete(this);
-        fetchTask.execute(type,PARAM_API_KEY,PARAM_LANGUAGE);
+        fetchTask.execute(type,PopularMoviesUtil.PARAM_API_KEY,PARAM_LANGUAGE);
+    }
+
+    private void fetchDataAndFavorites(){
+        gridItems = dbHelper.getFavorites();
+        if(gridItems!=null) {
+            Log.i(TAG, "items favorites " + gridItems.size());
+        }else{
+            Log.i(TAG, "items favorites null");
+        }
+        if(gridItems.size()==0){
+            activityCallback.onFragmentInteraction(true);
+        }else{
+            activityCallback.onFragmentInteraction(false);
+        }
+        rvThumbnailsAdapter.clearItems();
+        rvThumbnailsAdapter.addItems(gridItems);
+        rvThumbnailsAdapter.notifyDataSetChanged();
 
     }
 
@@ -123,8 +141,10 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         inflater.inflate(R.menu.menu_grid_fragment, menu);
         menu.getItem(0).setCheckable(true);
         menu.getItem(1).setCheckable(true);
+        menu.getItem(2).setCheckable(true);
         menu.getItem(0).setEnabled(true);
         menu.getItem(1).setEnabled(true);
+        menu.getItem(2).setEnabled(true);
     }
 
     @Override
@@ -142,6 +162,11 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
             return true;
         }else if(id==R.id.action_refresh){
             fetchDataAndUpdateGrid(prefs.getString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_DEFAULT));
+            return true;
+        }else if(id == R.id.action_favourites){
+            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_FAVOURITE).commit();
+            fetchDataAndFavorites();
+            return true;
         }
         return false;
     }
@@ -154,14 +179,22 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         int menuID = R.id.action_popularity;
         if(value.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)){
             menuID = R.id.action_top_rated;
+        }else if(value.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE)){
+            menuID = R.id.action_favourites;
         }
         //set the menu checked status based on the selection made
         if(menu.getItem(0).getItemId() == menuID){
             menu.getItem(0).setChecked(true);
             menu.getItem(1).setChecked(false);
-        }else{
+            menu.getItem(2).setChecked(false);
+        }else if (menu.getItem(1).getItemId() == menuID){
             menu.getItem(1).setChecked(true);
             menu.getItem(0).setChecked(false);
+            menu.getItem(2).setChecked(false);
+        }else if (menu.getItem(2).getItemId() == menuID){
+            menu.getItem(2).setChecked(true);
+            menu.getItem(0).setChecked(false);
+            menu.getItem(1).setChecked(false);
         }
     }
 

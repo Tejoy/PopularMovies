@@ -1,14 +1,15 @@
-package com.nanodegree.tejomai.popularmovies;
+package com.nanodegree.tejomai.popularmovies.adapters;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
+import com.nanodegree.tejomai.popularmovies.R;
 import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
 import com.nanodegree.tejomai.popularmovies.ui.MovieDetailActivity;
 import com.squareup.picasso.Picasso;
@@ -55,7 +56,7 @@ public class RVMovieThumbnailsAdapter extends RecyclerView.Adapter<RVMovieThumbn
     private String getUrl(int position, MovieGridItem item){
         StringBuilder builder = new StringBuilder();
         builder.append(PopularMoviesUtil.BASE_URL_THUMBNAIL).append(PopularMoviesUtil.URL_PARAM_SIZE).append(item.getPosterPath());
-        Log.i(TAG,"URL "+builder.toString());
+        //Log.i(TAG,"URL "+builder.toString());
         return builder.toString();
     }
 

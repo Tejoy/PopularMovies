@@ -1,4 +1,4 @@
-package com.nanodegree.tejomai.popularmovies;
+package com.nanodegree.tejomai.popularmovies.interfaces;
 
 import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
 

@@ -1,9 +1,12 @@
 package com.nanodegree.tejomai.popularmovies.network;
 
-import com.nanodegree.tejomai.popularmovies.models.JSONResponse;
+import com.nanodegree.tejomai.popularmovies.models.MovieGridJSONResponse;
+import com.nanodegree.tejomai.popularmovies.models.MovieReviewsJSONResponse;
+import com.nanodegree.tejomai.popularmovies.models.MovieVideosJSONResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -13,9 +16,15 @@ import retrofit2.http.Query;
 public interface MoviesAPI {
 
     @GET("movie/popular")
-    Call<JSONResponse> loadPopularGridItemsCall(@Query("api_key") String uri, @Query("language") String language);
+    Call<MovieGridJSONResponse> loadPopularGridItemsCall(@Query("api_key") String api_key, @Query("language") String language);
 
     @GET("movie/top_rated")
-    Call<JSONResponse> loadRatedGridItemsCall(@Query("api_key") String uri,@Query("language") String language);
+    Call<MovieGridJSONResponse> loadRatedGridItemsCall(@Query("api_key") String api_key,@Query("language") String language);
+
+    @GET("movie/{id}/videos")
+    Call<MovieVideosJSONResponse> loadVideosCall(@Path("id") String id, @Query("api_key") String api_key);
+
+    @GET("movie/{id}/reviews")
+    Call<MovieReviewsJSONResponse> loadReviewsCall(@Path("id") String id, @Query("api_key") String api_key);
 
 }
