@@ -20,6 +20,10 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
 import com.nanodegree.tejomai.popularmovies.R;
 import com.nanodegree.tejomai.popularmovies.adapters.ReviewsRVAdapter;
@@ -44,8 +48,8 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
 
     private static final String YOUTUBE_BASE_URL = "http://www.youtube.com/watch?v=";
     private static final String TRAILER = "Trailer";
-    private static int taskCount2 = 2;
-    private static int taskCount1 = 1;
+    private int taskCount2 = 2;
+    private int taskCount1 = 1;
     final String TAG = "MovieDetailActivity";
     private final String PARAM_LANGUAGE = "en-US";
     private final String key_instance_movie_item = "movieItem";
@@ -63,6 +67,11 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
     private CollapsingToolbarLayout layout;
     private AppBarLayout appBarLayout;
     private MovieGridItem gridItem;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +123,9 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
             }
             fetchReviewsAndVideos(gridItem);
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -256,6 +268,9 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
 
 
     private void fetchMovieDetails(final MovieGridItem item) {
+        if (!PopularMoviesUtil.isNetworkAvailable(this)) {
+            return;
+        }
         showProgressDialog();
         try {
             ExecutorService taskExecutor = Executors.newFixedThreadPool(taskCount1);
@@ -263,7 +278,7 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
             final MovieDetailFetcherAsyncTask detailsFetcherTask = new MovieDetailFetcherAsyncTask();
             detailsFetcherTask.setMovieDetailsDownloadComplete(new MovieDetailTaskCallback());
             detailsFetcherTask.execute(PopularMoviesUtil.PREF_FILTER_MOVIE_DETAIL, item.getId(), PopularMoviesUtil.PARAM_API_KEY, PARAM_LANGUAGE);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             updateReviewTrailer(gridItem);
         }
@@ -271,6 +286,11 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
 
     private void fetchReviewsAndVideos(final MovieGridItem item) {
         gridItem = item;
+        if (!PopularMoviesUtil.isNetworkAvailable(this)) {
+            taskCount2 = 0;
+            updateReviewTrailer(gridItem);
+            return;
+        }
         try {
             ExecutorService taskExecutor = Executors.newFixedThreadPool(taskCount2);
             final MovieReviewsFetcherAsyncTask reviewFetchTask = new MovieReviewsFetcherAsyncTask();
@@ -290,7 +310,7 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
                     videosFetchTask.execute(item.getId(), PopularMoviesUtil.PARAM_API_KEY);
                 }
             });
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             updateReviewTrailer(gridItem);
         }
@@ -317,6 +337,7 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
     private void showAlertMessage(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MovieDetailActivity.this);
         builder.setMessage(message);
+        builder.setCancelable(false);
         builder.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -330,6 +351,32 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
     @Override
     public void setHeight(int height) {
         reviewList.getLayoutParams().height = height;
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("MovieDetail Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     class ReviewsTaskCallback implements ReviewsDownloadComplete {
