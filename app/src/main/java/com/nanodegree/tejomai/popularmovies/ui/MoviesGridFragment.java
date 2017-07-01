@@ -1,6 +1,7 @@
 package com.nanodegree.tejomai.popularmovies.ui;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -8,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,8 +26,6 @@ import com.nanodegree.tejomai.popularmovies.tasks.MovieDataFetcherAsyncTask;
 
 import java.io.Serializable;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 
 /**
@@ -50,6 +48,7 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     private DBHelper dbHelper;
     private int POTRAIT_COL_COUNT = 2;
     private int LANSCAPE_COL_COUNT = 4;
+    private ProgressDialog progressDialog;
 
     public MoviesGridFragment() {
     }
@@ -69,7 +68,7 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState!=null){
+        if (savedInstanceState != null) {
             gridItems = (List<MovieGridItem>) savedInstanceState.getSerializable(key_instance_save);
         }
     }
@@ -77,13 +76,12 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(key_instance_save,(Serializable) gridItems);
+        outState.putSerializable(key_instance_save, (Serializable) gridItems);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
 
         dbHelper = new DBHelper(getActivity().getBaseContext());
         View frame = inflater.inflate(R.layout.fragment_movies_recyclerview, container, false);
@@ -91,48 +89,33 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         rvThumbnailsAdapter = new RVMovieThumbnailsAdapter(getActivity(), gridItems);
         rvMoviesGrid.setAdapter(rvThumbnailsAdapter);
         int orientation = getResources().getConfiguration().orientation;
-        if(orientation == Configuration.ORIENTATION_PORTRAIT){
-            rvMoviesGrid.setLayoutManager(new GridLayoutManager(getActivity(),POTRAIT_COL_COUNT));
-        }else{
-            rvMoviesGrid.setLayoutManager(new GridLayoutManager(getActivity(),LANSCAPE_COL_COUNT));
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            rvMoviesGrid.setLayoutManager(new GridLayoutManager(getActivity(), POTRAIT_COL_COUNT));
+        } else {
+            rvMoviesGrid.setLayoutManager(new GridLayoutManager(getActivity(), LANSCAPE_COL_COUNT));
         }
 
         activityCallback = (OnFragmentInteractionListener) getActivity();
-        SharedPreferences preferences = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME,Context.MODE_PRIVATE);
-        if(gridItems == null) {
+        SharedPreferences preferences = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME, Context.MODE_PRIVATE);
+        if (gridItems == null) {
             fetchDataAndUpdateGrid(preferences.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT));
         }
 
         return frame;
     }
 
-    private void fetchDataAndUpdateGrid(String type){
+    private void fetchDataAndUpdateGrid(String type) {
+        showProgressDialog();
         //start task to fetch image thumbnails
-        if(!PopularMoviesUtil.isNetworkAvailable(getActivity())){
+        if (!type.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE) && !PopularMoviesUtil.isNetworkAvailable(getActivity())) {
             onFailure(null);
             return;
         }
+
         MovieDataFetcherAsyncTask fetchTask = new MovieDataFetcherAsyncTask();
         fetchTask.setDataDownloadCompete(this);
-        fetchTask.execute(type,PopularMoviesUtil.PARAM_API_KEY,PARAM_LANGUAGE);
-    }
-
-    private void fetchDataAndFavorites(){
-        gridItems = dbHelper.getFavorites();
-        if(gridItems!=null) {
-            Log.i(TAG, "items favorites " + gridItems.size());
-        }else{
-            Log.i(TAG, "items favorites null");
-        }
-        if(gridItems.size()==0){
-            activityCallback.onFragmentInteraction(true);
-        }else{
-            activityCallback.onFragmentInteraction(false);
-        }
-        rvThumbnailsAdapter.clearItems();
-        rvThumbnailsAdapter.addItems(gridItems);
-        rvThumbnailsAdapter.notifyDataSetChanged();
-
+        fetchTask.setDbHelper(dbHelper);
+        fetchTask.execute(type, PopularMoviesUtil.PARAM_API_KEY, PARAM_LANGUAGE);
     }
 
     @Override
@@ -150,22 +133,22 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        SharedPreferences prefs = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME,Context.MODE_PRIVATE);
+        SharedPreferences prefs = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME, Context.MODE_PRIVATE);
         //fetch data based on menu selection
         if (id == R.id.action_popularity) {
-            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_POPULARITY).commit();
+            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_POPULARITY).commit();
             fetchDataAndUpdateGrid(PopularMoviesUtil.PREF_FILTER_POPULARITY);
             return true;
-        }else if(id == R.id.action_top_rated){
-            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_TOP_RATING).commit();
+        } else if (id == R.id.action_top_rated) {
+            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_TOP_RATING).commit();
             fetchDataAndUpdateGrid(PopularMoviesUtil.PREF_FILTER_TOP_RATING);
             return true;
-        }else if(id==R.id.action_refresh){
-            fetchDataAndUpdateGrid(prefs.getString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_DEFAULT));
+        } else if (id == R.id.action_refresh) {
+            fetchDataAndUpdateGrid(prefs.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT));
             return true;
-        }else if(id == R.id.action_favourites){
-            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_FAVOURITE).commit();
-            fetchDataAndFavorites();
+        } else if (id == R.id.action_favourites) {
+            prefs.edit().putString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_FAVOURITE).commit();
+            fetchDataAndUpdateGrid(PopularMoviesUtil.PREF_FILTER_FAVOURITE);
             return true;
         }
         return false;
@@ -174,24 +157,24 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        SharedPreferences prefs = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME,Context.MODE_PRIVATE);
-        String value = prefs.getString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_DEFAULT);
+        SharedPreferences prefs = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME, Context.MODE_PRIVATE);
+        String value = prefs.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT);
         int menuID = R.id.action_popularity;
-        if(value.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)){
+        if (value.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)) {
             menuID = R.id.action_top_rated;
-        }else if(value.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE)){
+        } else if (value.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE)) {
             menuID = R.id.action_favourites;
         }
         //set the menu checked status based on the selection made
-        if(menu.getItem(0).getItemId() == menuID){
+        if (menu.getItem(0).getItemId() == menuID) {
             menu.getItem(0).setChecked(true);
             menu.getItem(1).setChecked(false);
             menu.getItem(2).setChecked(false);
-        }else if (menu.getItem(1).getItemId() == menuID){
+        } else if (menu.getItem(1).getItemId() == menuID) {
             menu.getItem(1).setChecked(true);
             menu.getItem(0).setChecked(false);
             menu.getItem(2).setChecked(false);
-        }else if (menu.getItem(2).getItemId() == menuID){
+        } else if (menu.getItem(2).getItemId() == menuID) {
             menu.getItem(2).setChecked(true);
             menu.getItem(0).setChecked(false);
             menu.getItem(1).setChecked(false);
@@ -210,15 +193,33 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
 
     }
 
+    private void showProgressDialog() {
+        closeProgressDialog();
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage(getString(R.string.fetching_data));
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.show();
+    }
+
+    private void closeProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        progressDialog = null;
+    }
+
     @Override
     public void onSuccess(List<MovieGridItem> paths) {
-        Log.i(TAG,"Got callback success");
         //update adapter and UI on success
+        closeProgressDialog();
         gridItems = paths;
-        if(rvThumbnailsAdapter!=null) {
-            if(gridItems.size()==0){
+        if (rvThumbnailsAdapter != null) {
+            if (gridItems.size() == 0) {
                 activityCallback.onFragmentInteraction(true);
-            }else{
+            } else {
                 activityCallback.onFragmentInteraction(false);
             }
             rvThumbnailsAdapter.clearItems();
@@ -229,18 +230,23 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
 
     @Override
     public void onFailure(String message) {
-
         //update adapter and UI on failure
+        closeProgressDialog();
         activityCallback.onFragmentInteraction(true);
-        if(message!=null) {
-            Log.i(TAG,"Failed to get data with message "+message);
+        if (message != null) {
             activityCallback.showToast(message);
         }
         gridItems = null;
-        if(rvThumbnailsAdapter!=null) {
+        if (rvThumbnailsAdapter != null) {
             rvThumbnailsAdapter.clearItems();
             rvThumbnailsAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        closeProgressDialog();
+        super.onDestroy();
     }
 
     /**
@@ -255,6 +261,7 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
      */
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(boolean isGridEmpty);
+
         void showToast(String message);
     }
 }

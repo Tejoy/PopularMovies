@@ -24,39 +24,28 @@ import static com.nanodegree.tejomai.popularmovies.PopularMoviesUtil.BASE_URL;
  * Created by tejomai on 04/05/17.
  */
 
-public class MovieVideosFetcherAsyncTask   extends AsyncTask<String,Void,AsyncTaskItem<List<MovieVideoItem>>> {
+public class MovieVideosFetcherAsyncTask extends AsyncTask<String, Void, AsyncTaskItem<List<MovieVideoItem>>> {
 
     private final String TAG = "MovieVideosAsyncTask";
+    VideosDownloadComplete videosDownloadCompete = null;
 
     public void setVideosDownloadComplete(VideosDownloadComplete videosDownloadCompete) {
         this.videosDownloadCompete = videosDownloadCompete;
     }
 
-    VideosDownloadComplete videosDownloadCompete = null;
-
-
     @Override
     protected AsyncTaskItem<List<MovieVideoItem>> doInBackground(String... params) {
         {
-
             if (params.length == 0) {
                 return null;
             }
-
             if (params[1].equals(PopularMoviesUtil.DEFAULT_API_KEY)) {
-                Log.e(TAG, "Please set the API key!!");
                 return null;
             }
-
-            Log.i(TAG, "url " + params[0]);
-
             Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-
             MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
-
             Call<MovieVideosJSONResponse> videosCall = null;
-
-            videosCall = moviesAPI.loadVideosCall(params[0],params[1]);
+            videosCall = moviesAPI.loadVideosCall(params[0], params[1]);
 
             if (videosCall == null) {
                 return new AsyncTaskItem<List<MovieVideoItem>>();
@@ -64,7 +53,7 @@ public class MovieVideosFetcherAsyncTask   extends AsyncTask<String,Void,AsyncTa
             try {
                 Response<MovieVideosJSONResponse> response = videosCall.execute();
                 List<MovieVideoItem> dataList = response.body().getDataList();
-                if(response!=null && response.body()!=null) {
+                if (response != null && response.body() != null) {
                     return new AsyncTaskItem<List<MovieVideoItem>>(dataList);
                 }
             } catch (IOException e) {
@@ -75,18 +64,17 @@ public class MovieVideosFetcherAsyncTask   extends AsyncTask<String,Void,AsyncTa
         }
     }
 
-
-        @Override
-        protected void onPostExecute(AsyncTaskItem<List<MovieVideoItem>> result) {
-            super.onPostExecute(result);
-            if(result.getResult()!=null){
-                videosDownloadCompete.onSuccess(result.getResult());
-            }else if(result.getError()!=null){
-                videosDownloadCompete.onFailure(result.getError().getMessage());
-                Log.e(TAG,result.getError().getStackTrace().toString());
-            }else{
-                videosDownloadCompete.onFailure(null);
-            }
+    @Override
+    protected void onPostExecute(AsyncTaskItem<List<MovieVideoItem>> result) {
+        super.onPostExecute(result);
+        if (result.getResult() != null) {
+            videosDownloadCompete.onSuccess(result.getResult());
+        } else if (result.getError() != null) {
+            videosDownloadCompete.onFailure(result.getError().getMessage());
+            Log.e(TAG, result.getError().getStackTrace().toString());
+        } else {
+            videosDownloadCompete.onFailure(null);
         }
+    }
 
 }

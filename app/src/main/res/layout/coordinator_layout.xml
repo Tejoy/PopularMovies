@@ -103,57 +103,103 @@
 
 </RelativeLayout>
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-<RelativeLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerVertical="true">
-
-            <TextView
-                android:id="@+id/title_release_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/date"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
-
-            <TextView
-                android:id="@+id/release_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/title_release_date"
-                android:layout_marginLeft="@dimen/detail_text_margin_left"
-                android:layout_weight="1"
-                android:text="date"
-                android:textColor="@color/white"/>
-
-            <TextView
-                android:id="@+id/title_vote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/title_release_date"
-                android:layout_alignParentLeft="true"
-                android:text="@string/rating"
-                android:textStyle="bold"
-                android:textColor="@color/white"/>
-
-            <TextView
-                android:id="@+id/vote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/detail_text_margin_left"
-                android:layout_toRightOf="@id/title_vote"
-                android:layout_below="@id/title_release_date"
-                android:text="vote"
-                android:textColor="@color/white"/>
-
-
-</RelativeLayout>
 
 
 
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true">
+
+                    <TextView
+                        android:id="@+id/title_release_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/date"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/release_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@id/title_release_date"
+                        android:layout_marginLeft="@dimen/detail_text_margin_left"
+                        android:layout_weight="1"
+                        android:text="date"
+                        android:textColor="@color/white"/>
+
+                    <TextView
+                        android:id="@+id/title_vote"
+                        android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/title_release_date"
+                            android:layout_alignParentLeft="true"
+                            android:text="@string/rating"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"/>
+
+                        <TextView
+                            android:id="@+id/vote"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/detail_text_margin_left"
+                            android:layout_toRightOf="@id/title_vote"
+                            android:layout_below="@id/title_release_date"
+                            android:text="vote"
+                            android:textColor="@color/white"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/title_vote"
+                        android:layout_marginTop="@dimen/trailer_top_margin"
+                        android:layout_alignParentLeft="true">
+
+                    <TextView
+                        android:id="@+id/trailer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trailer"
+                        android:layout_gravity="center_vertical"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"/>
+
+                    <ProgressBar
+                            android:id="@+id/trailer_progress"
+                            android:layout_width="@dimen/trailer_image_size"
+                            android:layout_height="@dimen/trailer_image_size"
+                        android:layout_marginLeft="@dimen/trailer_image_left_margin"
+                            android:indeterminate="true"/>
+
+                    <ImageView
+                        android:id="@+id/trailer_play"
+                        android:layout_width="@dimen/trailer_image_size"
+                        android:layout_height="@dimen/trailer_image_size"
+                        android:layout_toRightOf="@id/trailer"
+                        android:src="@drawable/play"
+                        android:layout_marginLeft="@dimen/trailer_image_left_margin"
+                        android:visibility="gone"
+                        android:layout_below="@id/title_vote"/>
+
+                    <ImageView
+                        android:id="@+id/trailer_share"
+                        android:layout_width="@dimen/trailer_image_size"
+                        android:layout_height="@dimen/trailer_image_size"
+                        android:src="@drawable/share"
+                        android:visibility="gone"
+                        android:layout_toRightOf="@id/trailer_play"
+                        android:layout_marginLeft="@dimen/trailer_image_left_margin"
+                        android:layout_below="@id/title_vote"/>
+                    </LinearLayout>
+
+            </RelativeLayout>
+
+
+<!--
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -164,7 +210,8 @@
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/trailer_top_margin"
-                        android:layout_gravity="center"/>
+                        android:layout_gravity="center"
+                        android:scaleType="fitXY"/>
 
                     <ProgressBar
                         android:id="@+id/trailer_progress"
@@ -173,21 +220,37 @@
                         android:indeterminate="true"
                         android:layout_gravity="center"/>
 
-
-                    <Button
-                        android:id="@+id/trailer_play_image"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:alpha="0.7"
-                        android:visibility="invisible"/>
+                        android:orientation="vertical"
+                        android:weightSum="2">
+                        <Button
+                            android:id="@+id/trailer_play_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_gravity="top"
+                            android:layout_weight="1"
+                            android:alpha="0.7"
+                            android:visibility="invisible"/>
+
+                        <ImageView
+                            android:id="@+id/trailer_share"
+                            android:layout_width="40dp"
+                            android:layout_height="0dp"
+                            android:layout_gravity="top"
+                            android:layout_weight="1"
+                            android:src="@drawable/share"
+                            android:alpha="0.7"
+                            android:visibility="visible"/>
+
+                    </LinearLayout>
 
                 </FrameLayout>
 
 
-
-            </RelativeLayout>
+-->
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

@@ -40,29 +40,6 @@ public class ReviewsRVAdapter extends RecyclerView.Adapter<ReviewsRVAdapter.View
 
     }
 
-
-    /*public View getView(int position, View convertView, ViewGroup parent) {
-
-        ReviewsRVAdapter.ViewHolder viewHolder = null;
-        LayoutInflater mInflater;
-
-        if (convertView == null) {
-
-            convertView = mInflater.inflate(R.layout.detail_page_review_item, null);
-            viewHolder = new ViewHolder(convertView);
-            convertView.setTag(viewHolder);
-
-        }else{
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        MovieReviewItem item = getItem(position);
-        viewHolder.author.setText(item.getAuthor());
-        viewHolder.content.setText(item.getContent());
-
-        return convertView;
-    }*/
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.detail_page_review_item, parent, false);
@@ -75,16 +52,10 @@ public class ReviewsRVAdapter extends RecyclerView.Adapter<ReviewsRVAdapter.View
         MovieReviewItem item = getItem(position);
         holder.author.setText(item.getAuthor());
         holder.content.setText(item.getContent());
-        //holder.itemHeight = holder.author.getHeight()+holder.content.getHeight()+40;
-        //rvHeight.setHeight(items.size()*30);
     }
 
     private MovieReviewItem getItem(int position){
         return items.get(position);
-    }
-
-    public int getCount(){
-        return items.size();
     }
 
     @Override
@@ -101,8 +72,6 @@ public class ReviewsRVAdapter extends RecyclerView.Adapter<ReviewsRVAdapter.View
 
         public TextView author;
         public TextView content;
-        public int itemHeight;
-        //public Button moreButton;
         int position;
 
         public ViewHolder(View itemView) {

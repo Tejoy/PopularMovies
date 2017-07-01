@@ -1,5 +1,6 @@
 package com.nanodegree.tejomai.popularmovies.network;
 
+import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
 import com.nanodegree.tejomai.popularmovies.models.MovieGridJSONResponse;
 import com.nanodegree.tejomai.popularmovies.models.MovieReviewsJSONResponse;
 import com.nanodegree.tejomai.popularmovies.models.MovieVideosJSONResponse;
@@ -26,5 +27,8 @@ public interface MoviesAPI {
 
     @GET("movie/{id}/reviews")
     Call<MovieReviewsJSONResponse> loadReviewsCall(@Path("id") String id, @Query("api_key") String api_key);
+
+    @GET("movie/{id}")
+    Call<MovieGridItem> loadMovieDetailCall(@Path("id") String id, @Query("api_key") String api_key);
 
 }

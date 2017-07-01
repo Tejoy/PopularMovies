@@ -2,6 +2,7 @@ package com.nanodegree.tejomai.popularmovies.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,15 +50,8 @@ public class RVMovieThumbnailsAdapter extends RecyclerView.Adapter<RVMovieThumbn
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         MovieGridItem item = items.get(position);
-        String url = getUrl(position,item);
+        String url = PopularMoviesUtil.getUrl(item);
         Picasso.with(mContext).load(url).into(holder.imageView);
-    }
-
-    private String getUrl(int position, MovieGridItem item){
-        StringBuilder builder = new StringBuilder();
-        builder.append(PopularMoviesUtil.BASE_URL_THUMBNAIL).append(PopularMoviesUtil.URL_PARAM_SIZE).append(item.getPosterPath());
-        //Log.i(TAG,"URL "+builder.toString());
-        return builder.toString();
     }
 
     @Override
@@ -87,14 +81,16 @@ public class RVMovieThumbnailsAdapter extends RecyclerView.Adapter<RVMovieThumbn
         public void onClick(View view) {
             int position = getAdapterPosition();
             MovieGridItem item = items.get(position);
-            String url = getUrl(position,item);
             if(position != RecyclerView.NO_POSITION){
 
+                SharedPreferences prefs = mContext.getSharedPreferences(PopularMoviesUtil.PREF_NAME,Context.MODE_PRIVATE);
+                String type = prefs.getString(PopularMoviesUtil.PREF_FILTER,PopularMoviesUtil.PREF_FILTER_DEFAULT);
+                boolean isFavGridItem = type.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE);
                 Intent intent = new Intent();
                 intent.setClassName(mContext, MovieDetailActivity.class.getName());
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(PopularMoviesUtil.EXTRA_IMAGE_URL,url);
                 intent.putExtra(PopularMoviesUtil.EXTRA_GRID_ITEM,item);
+                intent.putExtra(PopularMoviesUtil.ACTION_FAV_FILTER_DETAIL,isFavGridItem);
                 mContext.startActivity(intent);
             }
         }

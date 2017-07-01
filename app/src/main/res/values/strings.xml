@@ -9,14 +9,16 @@
     <string name="date">Release date</string>
     <string name="rating">Rating</string>
     <string name="title_overview">Summary</string>
-    <string name="no_data">No movies to display!!</string>
+    <string name="no_data">No data to display!!</string>
     <string name="no_network">Network is not available. Please connect and refresh again.</string>
     <string name="refresh">Refresh</string>
     <string name="title_reviews">Reviews</string>
     <string name="tmp_large_content">dnn fncjinc njkncjkadnjkdsncjn njcnjk dnn fncjinc njkncjkadnjkdsncjn njcnjkdnn fncjinc njkncjkadnjkdsncjn njcnjkdnn fncjinc njkncjkadnjkdsncjn njcnjkdnn fncjinc njkncjkadnjkdsncjn njcnjkdnn fncjinc njkncjkadnjkdsncjn njcnjkdnn fncjinc njkncjkadnjkdsncjn njcnjkv dnn fncjinc njkndnn fncjinc njkndnn fncjinc njkndnn fncjinc njkndnn fncjinc njkn</string>
     <string name="view_more">More</string>
     <string name="play_trailer">Play\nTrailer</string>
-    <string name="no_trailer">No\nTrailer</string>
+    <string name="no_trailer">No Trailer</string>
     <string name="no_review">No Reviews</string>
     <string name="favourtite">Favourite</string>
+    <string name="trailer">Trailer</string>
+    <string name="fetching_data">Fetching data....</string>
 </resources>

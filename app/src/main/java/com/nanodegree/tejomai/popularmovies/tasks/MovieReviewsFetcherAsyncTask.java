@@ -35,24 +35,15 @@ public class MovieReviewsFetcherAsyncTask  extends AsyncTask<String,Void,AsyncTa
 
     @Override
     protected AsyncTaskItem<List<MovieReviewItem>> doInBackground(String... params) {
-
         if (params.length == 0) {
             return null;
         }
-
         if(params[1].equals(PopularMoviesUtil.DEFAULT_API_KEY)){
-            Log.e(TAG,"Please set API key!!");
             return null;
         }
-
-        Log.i(TAG,"url "+params[0]);
-
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-
         MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
-
         Call<MovieReviewsJSONResponse> reviewsCall = null;
-
         reviewsCall = moviesAPI.loadReviewsCall(params[0],params[1]);
 
         if(reviewsCall == null) {
@@ -67,7 +58,6 @@ public class MovieReviewsFetcherAsyncTask  extends AsyncTask<String,Void,AsyncTa
         } catch (IOException e) {
             Log.e(TAG,""+e.getMessage());
             e.printStackTrace();
-
         }
         return new AsyncTaskItem<List<MovieReviewItem>>();
     }

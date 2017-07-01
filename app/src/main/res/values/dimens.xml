@@ -29,4 +29,6 @@
     <dimen name="star_right_margin">10dp</dimen>
     <dimen name="trailer_top_margin">10dp</dimen>
     <dimen name="content_margin_bottom">5dp</dimen>
+    <dimen name="trailer_image_size">50dp</dimen>
+    <dimen name="trailer_image_left_margin">13dp</dimen>
 </resources>

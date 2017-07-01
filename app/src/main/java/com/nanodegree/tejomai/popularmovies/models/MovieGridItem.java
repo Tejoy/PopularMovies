@@ -58,6 +58,9 @@ public class MovieGridItem implements Parcelable {
         overview = in.readString();
         vote_average = in.readString();
         release_date = in.readString();
+        in.readList(reviews,MovieReviewItem.class.getClassLoader());
+        in.readList(trailers,MovieVideoItem.class.getClassLoader());
+
     }
 
 
@@ -138,6 +141,8 @@ public class MovieGridItem implements Parcelable {
         parcel.writeString(overview);
         parcel.writeString(vote_average);
         parcel.writeString(release_date);
+        parcel.writeList(reviews);
+        parcel.writeList(trailers);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator(){
