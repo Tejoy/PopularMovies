@@ -36,19 +36,11 @@ public class MovieDetailFetcherAsyncTask extends AsyncTask<String,Void,AsyncTask
 
     @Override
     protected AsyncTaskItem<MovieGridItem> doInBackground(String... params) {
-        if (params.length == 0) {
-            return null;
+        if (params.length == 0|| params[0].equals(PopularMoviesUtil.DEFAULT_API_KEY)) {
+            return new AsyncTaskItem<MovieGridItem>();
         }
-
-        if (params[0].equals(PopularMoviesUtil.DEFAULT_API_KEY)) {
-            Log.e(TAG, "Please set the API key!!");
-            return null;
-        }
-
-        Log.i(TAG, "logging - " + BASE_URL + " " + params[0] + " " + params[1] + " " + params[2]);
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
-
         MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
         String type = params[0];
         Call<MovieGridItem> gridCall = null;
@@ -78,7 +70,6 @@ public class MovieDetailFetcherAsyncTask extends AsyncTask<String,Void,AsyncTask
             e.printStackTrace();
             return new AsyncTaskItem<MovieGridItem>(e);
         }
-
     }
 
     @Override

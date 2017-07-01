@@ -257,33 +257,43 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
 
     private void fetchMovieDetails(final MovieGridItem item) {
         showProgressDialog();
-        ExecutorService taskExecutor = Executors.newFixedThreadPool(taskCount1);
+        try {
+            ExecutorService taskExecutor = Executors.newFixedThreadPool(taskCount1);
 
-        final MovieDetailFetcherAsyncTask detailsFetcherTask = new MovieDetailFetcherAsyncTask();
-        detailsFetcherTask.setMovieDetailsDownloadComplete(new MovieDetailTaskCallback());
-        detailsFetcherTask.execute(PopularMoviesUtil.PREF_FILTER_MOVIE_DETAIL, item.getId(), PopularMoviesUtil.PARAM_API_KEY, PARAM_LANGUAGE);
+            final MovieDetailFetcherAsyncTask detailsFetcherTask = new MovieDetailFetcherAsyncTask();
+            detailsFetcherTask.setMovieDetailsDownloadComplete(new MovieDetailTaskCallback());
+            detailsFetcherTask.execute(PopularMoviesUtil.PREF_FILTER_MOVIE_DETAIL, item.getId(), PopularMoviesUtil.PARAM_API_KEY, PARAM_LANGUAGE);
+        }catch (Exception e){
+            e.printStackTrace();
+            updateReviewTrailer(gridItem);
+        }
     }
 
     private void fetchReviewsAndVideos(final MovieGridItem item) {
         gridItem = item;
-        ExecutorService taskExecutor = Executors.newFixedThreadPool(taskCount2);
-        final MovieReviewsFetcherAsyncTask reviewFetchTask = new MovieReviewsFetcherAsyncTask();
-        final MovieVideosFetcherAsyncTask videosFetchTask = new MovieVideosFetcherAsyncTask();
+        try {
+            ExecutorService taskExecutor = Executors.newFixedThreadPool(taskCount2);
+            final MovieReviewsFetcherAsyncTask reviewFetchTask = new MovieReviewsFetcherAsyncTask();
+            final MovieVideosFetcherAsyncTask videosFetchTask = new MovieVideosFetcherAsyncTask();
 
-        reviewFetchTask.setReviewsDownloadComplete(new ReviewsTaskCallback());
-        taskExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                reviewFetchTask.execute(item.getId(), PopularMoviesUtil.PARAM_API_KEY);
-            }
-        });
-        videosFetchTask.setVideosDownloadComplete(new VideosTaskCallback());
-        taskExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                videosFetchTask.execute(item.getId(), PopularMoviesUtil.PARAM_API_KEY);
-            }
-        });
+            reviewFetchTask.setReviewsDownloadComplete(new ReviewsTaskCallback());
+            taskExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    reviewFetchTask.execute(item.getId(), PopularMoviesUtil.PARAM_API_KEY);
+                }
+            });
+            videosFetchTask.setVideosDownloadComplete(new VideosTaskCallback());
+            taskExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    videosFetchTask.execute(item.getId(), PopularMoviesUtil.PARAM_API_KEY);
+                }
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+            updateReviewTrailer(gridItem);
+        }
     }
 
     private void showProgressDialog() {

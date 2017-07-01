@@ -11,6 +11,7 @@ import com.nanodegree.tejomai.popularmovies.models.MovieVideosJSONResponse;
 import com.nanodegree.tejomai.popularmovies.network.MoviesAPI;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -36,11 +37,8 @@ public class MovieVideosFetcherAsyncTask extends AsyncTask<String, Void, AsyncTa
     @Override
     protected AsyncTaskItem<List<MovieVideoItem>> doInBackground(String... params) {
         {
-            if (params.length == 0) {
-                return null;
-            }
-            if (params[1].equals(PopularMoviesUtil.DEFAULT_API_KEY)) {
-                return null;
+            if (params.length == 0 || params[1].equals(PopularMoviesUtil.DEFAULT_API_KEY)) {
+                return new AsyncTaskItem<List<MovieVideoItem>>();
             }
             Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
             MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
@@ -56,9 +54,18 @@ public class MovieVideosFetcherAsyncTask extends AsyncTask<String, Void, AsyncTa
                 if (response != null && response.body() != null) {
                     return new AsyncTaskItem<List<MovieVideoItem>>(dataList);
                 }
+            } catch (UnknownHostException e) {
+                Log.e(TAG, "UnknownHostException " + e.getMessage());
+                e.printStackTrace();
+                return new AsyncTaskItem<List<MovieVideoItem>>(e);
             } catch (IOException e) {
                 Log.e(TAG, "" + e.getMessage());
                 e.printStackTrace();
+                return new AsyncTaskItem<List<MovieVideoItem>>(e);
+            } catch (Exception e) {
+                Log.e(TAG, "" + e.getMessage());
+                e.printStackTrace();
+                return new AsyncTaskItem<List<MovieVideoItem>>(e);
             }
             return new AsyncTaskItem<List<MovieVideoItem>>();
         }
