@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,13 +21,22 @@ import android.view.ViewGroup;
 import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
 import com.nanodegree.tejomai.popularmovies.R;
 import com.nanodegree.tejomai.popularmovies.adapters.RVMovieThumbnailsAdapter;
-import com.nanodegree.tejomai.popularmovies.db.DBHelper;
+import com.nanodegree.tejomai.popularmovies.db.FavoritesContentProvider;
+import com.nanodegree.tejomai.popularmovies.db.FavoritesTable;
 import com.nanodegree.tejomai.popularmovies.interfaces.DataDownloadComplete;
 import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
 import com.nanodegree.tejomai.popularmovies.tasks.MovieDataFetcherAsyncTask;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_ID;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_OVERVIEW;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_RELEASE;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_TITLE;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_URL;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_VOTE;
 
 
 /**
@@ -45,7 +56,6 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     private RVMovieThumbnailsAdapter rvThumbnailsAdapter = null;
     private List<MovieGridItem> gridItems = null;
     private OnFragmentInteractionListener activityCallback;
-    private DBHelper dbHelper;
     private int POTRAIT_COL_COUNT = 2;
     private int LANSCAPE_COL_COUNT = 4;
     private ProgressDialog progressDialog;
@@ -83,7 +93,6 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        dbHelper = new DBHelper(getActivity().getBaseContext());
         View frame = inflater.inflate(R.layout.fragment_movies_recyclerview, container, false);
         RecyclerView rvMoviesGrid = (RecyclerView) frame.findViewById(R.id.rvMoviesGrid);
         rvThumbnailsAdapter = new RVMovieThumbnailsAdapter(getActivity(), gridItems);
@@ -98,7 +107,7 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         activityCallback = (OnFragmentInteractionListener) getActivity();
         SharedPreferences preferences = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME, Context.MODE_PRIVATE);
         if (gridItems == null) {
-            fetchDataAndUpdateGrid(preferences.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT));
+            fetchDataByFilter(preferences.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT));
         }
 
         return frame;
@@ -107,15 +116,14 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     private void fetchDataAndUpdateGrid(String type) {
         showProgressDialog();
         //start task to fetch image thumbnails
-        if (!type.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE) && !PopularMoviesUtil.isNetworkAvailable(getActivity())) {
+        if (!PopularMoviesUtil.isNetworkAvailable(getActivity())) {
             onFailure(null);
             return;
         }
-
+        String url_key = type.equals(PopularMoviesUtil.PREF_FILTER_POPULARITY)? PopularMoviesUtil.URL_KEY_POPULAR : PopularMoviesUtil.URL_KEY_TOP_RATED;
         MovieDataFetcherAsyncTask fetchTask = new MovieDataFetcherAsyncTask();
         fetchTask.setDataDownloadCompete(this);
-        fetchTask.setDbHelper(dbHelper);
-        fetchTask.execute(type, PopularMoviesUtil.PARAM_API_KEY, PARAM_LANGUAGE);
+        fetchTask.execute(type, PopularMoviesUtil.PARAM_API_KEY, PARAM_LANGUAGE, url_key);
     }
 
     @Override
@@ -137,21 +145,39 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         //fetch data based on menu selection
         if (id == R.id.action_popularity) {
             prefs.edit().putString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_POPULARITY).commit();
-            fetchDataAndUpdateGrid(PopularMoviesUtil.PREF_FILTER_POPULARITY);
+            fetchDataByFilter(PopularMoviesUtil.PREF_FILTER_POPULARITY);
             return true;
         } else if (id == R.id.action_top_rated) {
             prefs.edit().putString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_TOP_RATING).commit();
-            fetchDataAndUpdateGrid(PopularMoviesUtil.PREF_FILTER_TOP_RATING);
+            fetchDataByFilter(PopularMoviesUtil.PREF_FILTER_TOP_RATING);
             return true;
         } else if (id == R.id.action_refresh) {
-            fetchDataAndUpdateGrid(prefs.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT));
+            fetchDataByFilter(prefs.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT));
             return true;
         } else if (id == R.id.action_favourites) {
             prefs.edit().putString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_FAVOURITE).commit();
-            fetchDataAndUpdateGrid(PopularMoviesUtil.PREF_FILTER_FAVOURITE);
+            fetchDataByFilter(PopularMoviesUtil.PREF_FILTER_FAVOURITE);
             return true;
         }
         return false;
+    }
+
+    private void fetchDataByFilter(String type){
+        if(type.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE)){
+            fetchFavoritesData();
+        }else{
+            fetchDataAndUpdateGrid(type);
+        }
+    }
+
+    private void fetchFavoritesData(){
+        String[] projection = FavoritesTable.PROJECTION;
+        Uri uri = FavoritesContentProvider.CONTENT_URI;
+        Cursor cursor = getContext().getContentResolver().query(uri, projection, null, null,
+                null);
+        gridItems = collectItems(cursor);
+        updateGridItems();
+
     }
 
     @Override
@@ -184,13 +210,11 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-
     }
 
     private void showProgressDialog() {
@@ -211,42 +235,71 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
         progressDialog = null;
     }
 
+
+    private void updateGridItems(){
+        if (rvThumbnailsAdapter != null) {
+            rvThumbnailsAdapter.clearItems();
+
+            if (gridItems!=null && gridItems.size() >= 0) {
+                activityCallback.onFragmentInteraction(false);
+                rvThumbnailsAdapter.addItems(gridItems);
+            } else {
+                activityCallback.onFragmentInteraction(true);
+            }
+
+            rvThumbnailsAdapter.notifyDataSetChanged();
+        }
+    }
+
     @Override
     public void onSuccess(List<MovieGridItem> paths) {
         //update adapter and UI on success
         closeProgressDialog();
         gridItems = paths;
-        if (rvThumbnailsAdapter != null) {
-            if (gridItems.size() == 0) {
-                activityCallback.onFragmentInteraction(true);
-            } else {
-                activityCallback.onFragmentInteraction(false);
-            }
-            rvThumbnailsAdapter.clearItems();
-            rvThumbnailsAdapter.addItems(gridItems);
-            rvThumbnailsAdapter.notifyDataSetChanged();
-        }
+        updateGridItems();
     }
 
     @Override
     public void onFailure(String message) {
         //update adapter and UI on failure
         closeProgressDialog();
-        activityCallback.onFragmentInteraction(true);
         if (message != null) {
             activityCallback.showToast(message);
         }
         gridItems = null;
-        if (rvThumbnailsAdapter != null) {
-            rvThumbnailsAdapter.clearItems();
-            rvThumbnailsAdapter.notifyDataSetChanged();
-        }
+        updateGridItems();
     }
 
     @Override
     public void onDestroy() {
         closeProgressDialog();
         super.onDestroy();
+    }
+
+    private List<MovieGridItem> collectItems(Cursor cr){
+        List<MovieGridItem> list= new ArrayList<MovieGridItem>();
+        MovieGridItem item;
+        try {
+            if (cr != null && cr.getCount() > 0) {
+                cr.moveToFirst();
+                do {
+                    item = new MovieGridItem();
+                    item.setId(cr.getString(cr.getColumnIndex(TABLE_NAME_COLUMN_ID)));
+                    item.setPosterPath(cr.getString(cr.getColumnIndex(TABLE_NAME_COLUMN_URL)));
+                    item.setOriginal_title(cr.getString(cr.getColumnIndex(TABLE_NAME_COLUMN_TITLE)));
+                    item.setRelease_date(cr.getString(cr.getColumnIndex(TABLE_NAME_COLUMN_RELEASE)));
+                    item.setOverview(cr.getString(cr.getColumnIndex(TABLE_NAME_COLUMN_OVERVIEW)));
+                    item.setVote_average(cr.getString(cr.getColumnIndex(TABLE_NAME_COLUMN_VOTE)));
+                    list.add(item);
+                } while (cr.moveToNext());
+            }
+        }finally {
+            if(cr!=null){
+                cr.close();
+                cr = null;
+            }
+        }
+        return list;
     }
 
     /**

@@ -42,8 +42,7 @@ public class MovieVideosFetcherAsyncTask extends AsyncTask<String, Void, AsyncTa
             }
             Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
             MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
-            Call<MovieVideosJSONResponse> videosCall = null;
-            videosCall = moviesAPI.loadVideosCall(params[0], params[1]);
+            Call<MovieVideosJSONResponse> videosCall = moviesAPI.loadVideosCall(params[0], params[1]);
 
             if (videosCall == null) {
                 return new AsyncTaskItem<List<MovieVideoItem>>();

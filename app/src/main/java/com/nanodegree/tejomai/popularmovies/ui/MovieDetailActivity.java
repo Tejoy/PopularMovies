@@ -1,6 +1,7 @@
 package com.nanodegree.tejomai.popularmovies.ui;
 
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,7 +28,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
 import com.nanodegree.tejomai.popularmovies.R;
 import com.nanodegree.tejomai.popularmovies.adapters.ReviewsRVAdapter;
-import com.nanodegree.tejomai.popularmovies.db.DBHelper;
+import com.nanodegree.tejomai.popularmovies.db.FavoritesContentProvider;
+import com.nanodegree.tejomai.popularmovies.db.FavoritesTable;
 import com.nanodegree.tejomai.popularmovies.interfaces.MovieDetailsDownloadComplete;
 import com.nanodegree.tejomai.popularmovies.interfaces.RecyclerViewHeight;
 import com.nanodegree.tejomai.popularmovies.interfaces.ReviewsDownloadComplete;
@@ -43,6 +45,14 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.nanodegree.tejomai.popularmovies.R.id.vote;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_ID;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_OVERVIEW;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_RELEASE;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_TITLE;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_URL;
+import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_COLUMN_VOTE;
 
 public class MovieDetailActivity extends AppCompatActivity implements RecyclerViewHeight {
 
@@ -63,7 +73,6 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
     private String key;
     private ReviewsRVAdapter adapter;
     private SharedPreferences sharedPreferences;
-    private DBHelper dbHelper;
     private CollapsingToolbarLayout layout;
     private AppBarLayout appBarLayout;
     private MovieGridItem gridItem;
@@ -82,7 +91,6 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.coordinator_layout);
 
-        dbHelper = new DBHelper(getBaseContext());
         layout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         layout.setTitleEnabled(true);
         appBarLayout = (AppBarLayout) findViewById(R.id.app_bar_layout);
@@ -97,7 +105,7 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
         tv_title = (TextView) findViewById(R.id.title);
         tv_overview = (TextView) findViewById(R.id.overview);
         tv_release_date = (TextView) findViewById(R.id.release_date);
-        tv_vote = (TextView) findViewById(R.id.vote);
+        tv_vote = (TextView) findViewById(vote);
         title_reviews = (TextView) findViewById(R.id.title_reviews);
         reviewList = (RecyclerView) findViewById(R.id.reviews_list);
 
@@ -152,9 +160,10 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
                 }
                 boolean isFav = sharedPreferences.getBoolean(item.getId(), false);
                 if (isFav) {
-                    dbHelper.removeFavourite(item.getId());
+                    deleteFavoriteItem(item.getId());
+
                 } else {
-                    dbHelper.insertFavourite(item.getId(), item.getPosterPath(), item.getOriginal_title(), item.getRelease_date(), item.getVote_average(), item.getOverview());
+                    insertFavoriteItem(item.getId(), item.getPosterPath(), item.getOriginal_title(), item.getRelease_date(), item.getVote_average(), item.getOverview());
                 }
                 sharedPreferences.edit().putBoolean(item.getId(), !isFav).commit();
                 updateFavStarState(!isFav);
@@ -191,6 +200,22 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
                 }
             }
         });
+    }
+
+    private void insertFavoriteItem(String id, String url, String title, String releaseDate, String vote, String overview){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(TABLE_NAME_COLUMN_ID, id);
+        contentValues.put(TABLE_NAME_COLUMN_URL, url);
+        contentValues.put(TABLE_NAME_COLUMN_TITLE, title);
+        contentValues.put(TABLE_NAME_COLUMN_RELEASE, releaseDate);
+        contentValues.put(TABLE_NAME_COLUMN_OVERVIEW, overview);
+        contentValues.put(TABLE_NAME_COLUMN_VOTE, vote);
+        getContentResolver().insert(FavoritesContentProvider.CONTENT_URI,contentValues);
+    }
+
+    private void deleteFavoriteItem(String id){
+        String where_clause = FavoritesTable.TABLE_NAME_COLUMN_ID+" = ?";
+        getContentResolver().delete(FavoritesContentProvider.CONTENT_URI,where_clause,new String[]{id});
     }
 
     private void updateFavStarState(boolean isFav) {
@@ -268,6 +293,7 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
 
 
     private void fetchMovieDetails(final MovieGridItem item) {
+        taskCount1  =1;
         if (!PopularMoviesUtil.isNetworkAvailable(this)) {
             return;
         }
@@ -285,6 +311,7 @@ public class MovieDetailActivity extends AppCompatActivity implements RecyclerVi
     }
 
     private void fetchReviewsAndVideos(final MovieGridItem item) {
+        taskCount2 = 2;
         gridItem = item;
         if (!PopularMoviesUtil.isNetworkAvailable(this)) {
             taskCount2 = 0;

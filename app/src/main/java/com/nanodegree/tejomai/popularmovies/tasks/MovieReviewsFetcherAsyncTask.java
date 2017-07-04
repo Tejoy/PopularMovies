@@ -41,8 +41,7 @@ public class MovieReviewsFetcherAsyncTask  extends AsyncTask<String,Void,AsyncTa
         }
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
         MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
-        Call<MovieReviewsJSONResponse> reviewsCall = null;
-        reviewsCall = moviesAPI.loadReviewsCall(params[0],params[1]);
+        Call<MovieReviewsJSONResponse> reviewsCall = moviesAPI.loadReviewsCall(params[0],params[1]);
 
         if(reviewsCall == null) {
             return new AsyncTaskItem<List<MovieReviewItem>>();

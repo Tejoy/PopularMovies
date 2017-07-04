@@ -16,11 +16,8 @@ import retrofit2.http.Query;
 
 public interface MoviesAPI {
 
-    @GET("movie/popular")
-    Call<MovieGridJSONResponse> loadPopularGridItemsCall(@Query("api_key") String api_key, @Query("language") String language);
-
-    @GET("movie/top_rated")
-    Call<MovieGridJSONResponse> loadRatedGridItemsCall(@Query("api_key") String api_key,@Query("language") String language);
+    @GET("movie/{url_key}")
+    Call<MovieGridJSONResponse> loadGridItemsCall(@Path("url_key") String url_key, @Query("api_key") String api_key, @Query("language") String language);
 
     @GET("movie/{id}/videos")
     Call<MovieVideosJSONResponse> loadVideosCall(@Path("id") String id, @Query("api_key") String api_key);

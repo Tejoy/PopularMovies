@@ -19,6 +19,9 @@ public class PopularMoviesUtil {
     public final static String PREF_FILTER_MOVIE_DETAIL = "movies_filter_movie_detail";
     public final static String PREF_FILTER_FAVOURITE = "movies_filter_favourite";
     public final static String PREF_FILTER_DEFAULT = "movies_filter_popularity";
+    public final static String URL_KEY_POPULAR = "popular";
+    public final static String URL_KEY_TOP_RATED = "top_rated";
+
 
     public final static String DEFAULT_API_KEY = "<ENTER YOUR API KEY>";
 

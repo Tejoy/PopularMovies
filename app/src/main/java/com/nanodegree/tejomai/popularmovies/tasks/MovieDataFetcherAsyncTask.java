@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.nanodegree.tejomai.popularmovies.PopularMoviesUtil;
-import com.nanodegree.tejomai.popularmovies.db.DBHelper;
 import com.nanodegree.tejomai.popularmovies.interfaces.DataDownloadComplete;
 import com.nanodegree.tejomai.popularmovies.models.AsyncTaskItem;
 import com.nanodegree.tejomai.popularmovies.models.MovieGridItem;
@@ -30,16 +29,10 @@ import static com.nanodegree.tejomai.popularmovies.PopularMoviesUtil.BASE_URL;
 public class MovieDataFetcherAsyncTask extends AsyncTask<String, Void, AsyncTaskItem<List<MovieGridItem>>> {
 
     private final String TAG = "DataFetcherAsyncTask";
-    DataDownloadComplete dataDownloadCompete = null;
-    private DBHelper dbHelper;
-    private List<MovieGridItem> gridItems = null;
+    private DataDownloadComplete dataDownloadCompete = null;
 
     public void setDataDownloadCompete(DataDownloadComplete dataDownloadCompete) {
         this.dataDownloadCompete = dataDownloadCompete;
-    }
-
-    public void setDbHelper(DBHelper dbHelper) {
-        this.dbHelper = dbHelper;
     }
 
     @Override
@@ -53,37 +46,28 @@ public class MovieDataFetcherAsyncTask extends AsyncTask<String, Void, AsyncTask
         Retrofit retrofit = new Retrofit.Builder().baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create()).build();
         MoviesAPI moviesAPI = retrofit.create(MoviesAPI.class);
         String type = params[0];
-        Call<MovieGridJSONResponse> gridCall = null;
-
-        if (type.equals(PopularMoviesUtil.PREF_FILTER_POPULARITY)) {
-            gridCall = moviesAPI.loadPopularGridItemsCall(params[1], params[2]);
-        } else if (type.equals(PopularMoviesUtil.PREF_FILTER_TOP_RATING)) {
-            gridCall = moviesAPI.loadRatedGridItemsCall(params[1], params[2]);
-        } else if (type.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE)) {
-            gridItems = dbHelper.getFavorites();
-            return new AsyncTaskItem<List<MovieGridItem>>(gridItems);
-        }
+        Call<MovieGridJSONResponse> gridCall = moviesAPI.loadGridItemsCall(params[3], params[1], params[2]);
 
         if (gridCall == null) {
-            return new AsyncTaskItem<List<MovieGridItem>>();
+            return new AsyncTaskItem<>();
         }
         try {
             Response<MovieGridJSONResponse> response = gridCall.execute();
             List<MovieGridItem> dataList = response.body().getDataList();
-            return new AsyncTaskItem<List<MovieGridItem>>(dataList);
+            return new AsyncTaskItem<>(dataList);
 
         } catch (UnknownHostException e) {
             Log.e(TAG, "UnknownHostException " + e.getMessage());
             e.printStackTrace();
-            return new AsyncTaskItem<List<MovieGridItem>>(e);
+            return new AsyncTaskItem<>(e);
         } catch (IOException e) {
             Log.e(TAG, "" + e.getMessage());
             e.printStackTrace();
-            return new AsyncTaskItem<List<MovieGridItem>>(e);
+            return new AsyncTaskItem<>(e);
         } catch (Exception e) {
             Log.e(TAG, "" + e.getMessage());
             e.printStackTrace();
-            return new AsyncTaskItem<List<MovieGridItem>>(e);
+            return new AsyncTaskItem<>(e);
         }
 
     }
