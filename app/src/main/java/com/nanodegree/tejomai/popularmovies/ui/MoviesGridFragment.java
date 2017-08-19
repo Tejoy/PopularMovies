@@ -9,6 +9,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -47,7 +50,7 @@ import static com.nanodegree.tejomai.popularmovies.db.FavoritesTable.TABLE_NAME_
  * Use the {@link MoviesGridFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MoviesGridFragment extends Fragment implements DataDownloadComplete {
+public class MoviesGridFragment extends Fragment implements DataDownloadComplete, LoaderManager.LoaderCallbacks<CursorLoader> {
 
 
     private final String PARAM_LANGUAGE = "en-US";
@@ -208,6 +211,17 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
     }
 
     @Override
+    public void onResume() {
+        SharedPreferences prefs = getActivity().getSharedPreferences(PopularMoviesUtil.PREF_NAME, Context.MODE_PRIVATE);
+        String value = prefs.getString(PopularMoviesUtil.PREF_FILTER, PopularMoviesUtil.PREF_FILTER_DEFAULT);
+        if (value.equals(PopularMoviesUtil.PREF_FILTER_FAVOURITE)) {
+            fetchDataByFilter(PopularMoviesUtil.PREF_FILTER_FAVOURITE);
+        }
+
+        super.onResume();
+    }
+
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
     }
@@ -300,6 +314,26 @@ public class MoviesGridFragment extends Fragment implements DataDownloadComplete
             }
         }
         return list;
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+
+        String[] projection = FavoritesTable.PROJECTION;
+        Uri uri = FavoritesContentProvider.CONTENT_URI;
+        CursorLoader cursorLoader = new CursorLoader(getContext(), FavoritesContentProvider.CONTENT_URI, projection, null, null, null);
+
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<CursorLoader> loader, CursorLoader data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+
     }
 
     /**
